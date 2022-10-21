@@ -1,5 +1,5 @@
 use crate::_common::get_type_smart;
-use syn::{Attribute, Field, Meta, NestedMeta,  Type, Visibility};
+use syn::{Attribute, Field, Meta, NestedMeta, Type, Visibility};
 
 #[derive(Clone, Debug)]
 pub struct FieldInfo {

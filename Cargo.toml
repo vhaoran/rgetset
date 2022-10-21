@@ -1,5 +1,5 @@
 [package]
-name = "rgetter"
+name = "rgetset"
 description = """
 Getset, we're ready to go!
 A procedural macro for generating the most basic getters  on fields.
@@ -10,9 +10,9 @@ license = "MIT"
 edition = "2018"
 
 #categories = ["development-tools::procedural-macro-helpers"]
-keywords = ["macro", "getter", "option", "field", "field-value", "getters"]
+keywords = ["macro", "getter", "option", "field", "field-value", "getters","builder"]
 readme = "README.md"
-repository = "https://github.com/vhaoran/rgetter"
+repository = "https://github.com/vhaoran/rgetset"
 
 [lib]
 proc-macro = true

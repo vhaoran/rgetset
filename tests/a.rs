@@ -1,13 +1,12 @@
 #[macro_use]
-extern crate rgetter;
-
-use std::process::id;
+extern crate rgetset;
 
 #[test]
 fn a_1() {
-    #[derive(RGet, Default, Clone, Debug)]
+    #[derive(RGetter, Default, Clone, Debug)]
     pub struct ABC {
         pub id: i64,
+        #[rgetter(skip)]
         pub name: Option<String>,
     }
 
@@ -19,16 +18,17 @@ fn a_1() {
         id: 1,
         name: Some("name_abc".to_string()),
     };
+    println!("-----------{a:?}-----------");
+    println!("-----------{a:?}-----id:{}------", a.id());
 
     // let id = a.id();
     // let name = a.name();
-
     // println!("-----------id: {id} name: {name}-----------");
 }
 
 #[test]
 fn a_2() {
-    #[derive(RSet, Default, Clone, Debug)]
+    #[derive(RSetter, Default, Clone, Debug)]
     pub struct ABC {
         pub id: i64,
         pub name: Option<String>,
@@ -47,18 +47,21 @@ fn a_2() {
 
 #[test]
 fn a_builder_1() {
-    #[derive(RBuilder, Default, Clone, Debug)]
+    #[derive(RBuilder, RGetter, RSetter, Default, Clone, Debug)]
     pub struct ABC {
         pub id: i64,
         pub name: Option<String>,
     }
 
-    let mut a = ABC {
+    let a = ABC {
         id: 1,
         name: Some("name_abc".to_string()),
     };
+    println!("-----------{a:?}-----------");
 
-    let r = ABC::builder().id(5).name("good name".to_string()).build();
+    let mut r = ABC::builder().id(5).name("good name".to_string()).build();
+    r.set_name("good name".to_string());
+    //
 
     println!("-----------row: {r:#?}-----------");
     // trace();
@@ -66,7 +69,7 @@ fn a_builder_1() {
 
 #[test]
 fn a_builder_gen_1() {
-    #[derive(RBuilder, RGet, RSet, Default, Clone, Debug)]
+    #[derive(RBuilder, RGetter, RSetter, Default, Clone, Debug)]
     pub struct ABC<T>
     where
         T: Default + Clone,
@@ -102,20 +105,23 @@ fn a_builder_pat() {
         pub name: Option<String>,
     }
 
-    struct ABCBuilder {
+    pub struct ABCBuilder {
         inner: ABC,
     }
     impl ABCBuilder {
+        #[allow(dead_code)]
         pub fn set_id(&mut self, v: i64) -> &mut Self {
             self.inner.id = v;
             self
         }
+        #[allow(dead_code)]
         pub fn set_name(&mut self, v: String) -> &mut Self {
             self.inner.name = Some(v);
             self
         }
     }
     impl ABC {
+        #[allow(dead_code)]
         pub fn builder() -> ABCBuilder {
             ABCBuilder {
                 inner: ABC::default(),
@@ -124,9 +130,10 @@ fn a_builder_pat() {
     }
 }
 
+#[allow(dead_code)]
 #[test]
 fn a_gen_1() {
-    #[derive(RGet, Default, Clone, Debug)]
+    #[derive(RGetter, RSetter, Default, Clone, Debug)]
     pub struct ABC<T>
     where
         T: Clone + Default,
@@ -164,8 +171,6 @@ fn a_gen_1() {
         }
     }
 
-    let b: &ABCBuilder<i64> = ABC::builder().id(5);
-
     let a = ABC::<i64> {
         id: 1,
         name: Some("name_abc".to_string()),
@@ -175,5 +180,5 @@ fn a_gen_1() {
     // let id = a.id();
     // let name = a.name();
 
-    // println!("-----------id: {id} name: {name}-----------");
+    println!("-----------id: {a:#?}----------");
 }

@@ -48,34 +48,40 @@ fn gen_fn(action: &str, src: &Field) -> TokenStream2 {
         return quote!();
     }
 
-    if action == "RGet" {
-        let mut suffix = quote!();
-        if is_opt {
-            suffix = quote! {
-                .unwrap_or(#ty::default())
+    match action {
+        "rgetter" => {
+            let mut suffix = quote!();
+            if is_opt {
+                suffix = quote! {.unwrap_or(#ty::default())}
+            };
+
+            quote! {
+                #[allow(dead_code)]
+                 #vis fn #name(&self)->#ty{
+                     self.#name.clone() #suffix
+                 }
             }
-        };
+        }
+        "rsetter" => {
+            let mut v = quote! {v};
+            if is_opt {
+                v = quote! {Some(v)};
+            }
 
-        return quote! {
-             #vis fn #name(&self)->#ty{
-                 self.#name.clone() #suffix
-             }
-        };
+            let fn_name = format_ident!("set_{}", name.clone().unwrap());
+            let fn_name = quote! {#fn_name};
+
+            quote! {
+              #[allow(dead_code)]
+              #vis fn #fn_name (&mut self,v:#ty)->&mut Self{
+                self.#name = #v;
+                self
+              }
+            }
+        }
+        _ => {
+            quote!()
+        }
     }
-
     // gen rset
-    let mut v = quote! {v};
-    if is_opt {
-        v = quote! {Some(v)};
-    }
-
-    let fn_name = format_ident!("set_{}", name.clone().unwrap());
-    let fn_name = quote! {#fn_name};
-
-    quote! {
-      #vis fn #fn_name (&mut self,v:#ty)->&mut Self{
-        self.#name = #v;
-        self
-      }
-    }
 }

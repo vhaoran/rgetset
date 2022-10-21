@@ -9,6 +9,7 @@ use crate::field_info::FieldInfo;
 
 pub fn gen(input: syn::DeriveInput) -> TokenStream2 {
     let src = input.clone();
+    let vis = src.vis;
     let (g_impl, g_ty, g_where) = src.generics.split_for_impl();
 
     let name = src.ident;
@@ -19,21 +20,28 @@ pub fn gen(input: syn::DeriveInput) -> TokenStream2 {
 
     let ast = quote! {
          // builder strust
-         struct #builder_name #g_ty #g_where{
+        #[allow(dead_code)]
+         #vis struct #builder_name #g_ty #g_where{
             inner:#name #g_ty,
          }
 
         // builder impl
+        #[allow(dead_code)]
         impl #g_impl #builder_name #g_ty #g_where {
+
             #fields_fn
+
+            #[allow(dead_code)]
             pub fn build(&self)->#name #g_ty{
                 self.inner.clone()
             }
         }
 
         // origin struct add fn builder()
+        #[allow(dead_code)]
         impl #g_impl #name #g_ty #g_where {
-            pub fn builder()->#builder_name #g_ty{
+            #[allow(dead_code)]
+            #vis fn builder()->#builder_name #g_ty{
                 #builder_name{
                     inner: #name::default(),
                 }
@@ -61,10 +69,10 @@ fn get_fields(data: &Data) -> TokenStream2 {
         _ => abort_call_site!("#[derive(RGet)] is only defined for structs, not for enums!"),
     };
 
-    let recurse = fields.named.iter().map(|f| self::gen_fn(action, f));
+    let lines = fields.named.iter().map(|f| self::gen_fn(action, f));
 
     quote! {
-       #( #recurse )*
+       #( #lines )*
     }
 }
 
@@ -86,6 +94,7 @@ fn gen_fn(action: &str, src: &Field) -> TokenStream2 {
     }
 
     quote! {
+      #[allow(dead_code)]
       #vis fn #name (&mut self,v:#ty)->&mut Self{
         self.inner.#name = #v;
         self
