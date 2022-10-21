@@ -1,0 +1,25 @@
+[package]
+name = "rgetter"
+description = """
+Getset, we're ready to go!
+A procedural macro for generating the most basic getters  on fields.
+"""
+version = "0.1.2"
+authors = ["weihaoran <183455715@qq.com>"]
+license = "MIT"
+edition = "2018"
+
+#categories = ["development-tools::procedural-macro-helpers"]
+keywords = ["macro", "getter", "option", "field", "field-value", "getters"]
+readme = "README.md"
+repository = "https://github.com/vhaoran/rgetter"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "^1.0.98", features = ["full", "fold", "extra-traits"] }
+quote = "^1.0.20"
+proc-macro2 = "^1.0.42"
+
+proc-macro-error = "^1.0"
