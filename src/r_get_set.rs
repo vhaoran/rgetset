@@ -9,9 +9,9 @@ use crate::field_info::FieldInfo;
 
 pub fn gen_get_set(action: &str, input: syn::DeriveInput) -> TokenStream2 {
     let src = input.clone();
-    let (g_impl, g_ty, g_where) = src.generics.split_for_impl();
 
     let name = src.ident;
+    let (g_impl, g_ty, g_where) = src.generics.split_for_impl();
     let fields_fn = self::get_fields(action, &src.data);
 
     quote! {
@@ -27,7 +27,7 @@ fn get_fields(action: &str, data: &Data) -> TokenStream2 {
             fields: Fields::Named(ref fields),
             ..
         }) => fields,
-        _ => abort_call_site!("#[derive(RGet)] is only defined for structs, not for enums!"),
+        _ => abort_call_site!("#[derive(RGetter)] is only defined for structs, not for enums!"),
     };
 
     let recurse = fields.named.iter().map(|f| self::gen_fn(action, f));

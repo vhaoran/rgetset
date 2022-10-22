@@ -1,5 +1,5 @@
-use crate::_common::get_type_smart;
-use syn::{Attribute, Field, Meta, NestedMeta, Type, Visibility};
+use crate::_common::{get_type_smart, is_attr_sub_type};
+use syn::{Field, Type, Visibility};
 
 #[derive(Clone, Debug)]
 pub struct FieldInfo {
@@ -43,30 +43,5 @@ impl Info {
 } //impl
 
 fn is_skip(action: &str, field: &Field) -> bool {
-    field
-        .attrs
-        .iter()
-        .map(|f: &Attribute| {
-            match f.parse_meta() {
-                Ok(Meta::List(l)) => {
-                    if l.path.is_ident(action) {
-                        l.nested
-                            .iter()
-                            .map(|x: &NestedMeta| match x {
-                                NestedMeta::Meta(Meta::Path(p)) => p.is_ident("skip"),
-                                _ => false,
-                            })
-                            .filter(|&b| b)
-                            .count()
-                            > 0
-                    } else {
-                        false
-                    }
-                }
-                _ => false,
-            } //match
-        })
-        .filter(|&x| x)
-        .count()
-        > 0_usize
+    is_attr_sub_type(&field.attrs, action, vec!["skip"])
 }

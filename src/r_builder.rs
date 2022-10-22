@@ -9,6 +9,12 @@ use crate::field_info::FieldInfo;
 
 pub fn gen(input: syn::DeriveInput) -> TokenStream2 {
     let src = input.clone();
+
+    // if !is_attr_sub_type(&src.attrs, "Derive", vec!["Clone"]) {
+    //     abort_call_site!("#[derive(RBuilder)] struct must derive Clone and derive Default(or impl Default traits)")
+    // }
+    let attrs_str = format!("{:#?}", input.attrs);
+
     let vis = src.vis;
     let (g_impl, g_ty, g_where) = src.generics.split_for_impl();
 
@@ -28,6 +34,10 @@ pub fn gen(input: syn::DeriveInput) -> TokenStream2 {
         // builder impl
         #[allow(dead_code)]
         impl #g_impl #builder_name #g_ty #g_where {
+
+            pub fn attrs(){
+                println!("-----------{}-----------",#attrs_str);
+            }
 
             #fields_fn
 
@@ -49,13 +59,12 @@ pub fn gen(input: syn::DeriveInput) -> TokenStream2 {
         }
     };
 
-    // let ast =
-    // quote! {
+    // let s = format!("{attrs:#?}");
+    // let ast = quote! {
     //     pub fn trace(){
-    //        println!("-----------{}-----------",stringify!(#ast));
+    //        println!("--attrs:{}",#s);
     //     }
-    // }
-
+    // };
     ast
 }
 

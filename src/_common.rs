@@ -1,6 +1,8 @@
 use proc_macro_error::abort_call_site;
 use syn::PathArguments::AngleBracketed;
-use syn::{AngleBracketedGenericArguments, GenericArgument, Type, TypePath};
+use syn::{
+    AngleBracketedGenericArguments, Attribute, GenericArgument, Meta, NestedMeta, Type, TypePath,
+};
 
 /// result: (ty,is_option)
 pub fn get_type_smart(tp: &Type) -> (Type, bool) {
@@ -41,4 +43,42 @@ pub fn is_opt_type(tp: &Type) -> bool {
         },
         _ => false,
     }
+}
+
+/// for #[derive(Default,Debug,Clone)] or
+///     #[rget(skip)] etc
+///     #[main_type(list_type0]
+pub fn is_attr_sub_type(attrs: &Vec<Attribute>, main_type: &str, sub_types: Vec<&str>) -> bool {
+    attrs
+        .iter()
+        .map(|f: &Attribute| {
+            match f.parse_meta() {
+                Ok(Meta::List(l)) => {
+                    if l.path.is_ident(main_type) {
+                        l.nested
+                            .iter()
+                            .map(|x: &NestedMeta| match x {
+                                NestedMeta::Meta(Meta::Path(p)) => {
+                                    sub_types
+                                        .iter()
+                                        .map(|&tp| p.is_ident(tp))
+                                        .filter(|&x| x)
+                                        .count()
+                                        == sub_types.len()
+                                }
+                                _ => false,
+                            })
+                            .filter(|&b| b)
+                            .count()
+                            > 0
+                    } else {
+                        false
+                    } //if
+                }
+                _ => false,
+            } //match
+        })
+        .filter(|&x| x)
+        .count()
+        > 0_usize
 }
