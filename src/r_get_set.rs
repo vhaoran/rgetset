@@ -48,11 +48,15 @@ fn gen_fn(action: &str, src: &Field) -> TokenStream2 {
         return quote!();
     }
 
+    //
+
+    //
+
     match action {
         "rgetter" => {
             let mut suffix = quote!();
             if is_opt {
-                suffix = quote! {.unwrap_or(#ty::default())}
+                suffix = quote! {.unwrap_or(Default::default())}
             };
 
             quote! {
